@@ -36,6 +36,8 @@ class CustomFreyaAI:
     if not solution_name in ["reweighting", "data_synthesizer", "Ad_Hoc"]:
         raise Exception(f"The specified solution name '{solution_name}', was not found among the available solutions")
 
+    print(f"Applying {solution_name}...")
+
     report = {}
 
     X_train_copy = self.X_train.copy()

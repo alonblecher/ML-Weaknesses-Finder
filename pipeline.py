@@ -6,6 +6,7 @@ from heapq import nlargest
 
 
 def initalize_data_set(target_column, predicted_column, categorical_threshold = 0.001, csv_file_path = None , df = None):
+  print("Initializing dataset...")
   if csv_file_path is None and df is None:
     raise Exception("expected csv file path or data frame object")
   if df is None:
@@ -32,30 +33,31 @@ def initalize_data_set(target_column, predicted_column, categorical_threshold = 
 
 def get_all_indexes_from_all_slices(df, slices):
   categorical_slices = []
-  continious_slices = []
+  continuous_slices = []
   for key in slices.keys():
     # for categorical
     if 'range' in slices[key][0]:
       categorical_slices.append(slices[key])
     else:
-      continious_slices.append(hdr_ranges_to_slice(df, key, slices[key]))
+      continuous_slices.append(hdr_ranges_to_slice(df, key, slices[key]))
 
   df_categorical = tree_indexes_by_slices(df, categorical_slices)
-  df_continious = None
-  if len(continious_slices) > 0:
-    df_continious = pd.concat(continious_slices)
-  if len(continious_slices) > 0 and len(df_categorical) > 0:
-    return pd.concat([df_categorical, df_continious]).index.unique()
+  df_continuous = None
+  if len(continuous_slices) > 0:
+    df_continuous = pd.concat(continuous_slices)
+  if len(continuous_slices) > 0 and len(df_categorical) > 0:
+    return pd.concat([df_categorical, df_continuous]).index.unique()
   elif len(df_categorical) == 0:
-    return df_continious.index.unique()
+    return df_continuous.index.unique()
   else:
     return df_categorical.index.unique()
 
 def apply_heuristics(X, Y, df, features, options = {}):
+  print('Applying heuristics...')
   high_rate_columns = [column for column in df.columns if df[column].value_counts().max() / df.shape[0] > 0.7 ]
 
   categorical_features = [key for (key, value) in features.items() if (value and (key not in high_rate_columns))]
-  continious_features = [key for (key, value) in features.items() if ((value == False) and (key not in high_rate_columns))]
+  continuous_features = [key for (key, value) in features.items() if ((value == False) and (key not in high_rate_columns))]
   #categorical_features
   categorical_features_error_rates_single = {}
   categorical_features_slices_single = {}
@@ -66,20 +68,20 @@ def apply_heuristics(X, Y, df, features, options = {}):
       categorical_features_error_rates_single[feature] = np.mean([slice_dict['error_rate'] for slice_dict in slices])
       categorical_features_slices_single[feature] = slices
     
-  #continious_features
-  continious_feature_error_rates_single = {}
-  continious_feature_slices_single = {}
-  for feature in continious_features:
+  #continuous_features
+  continuous_feature_error_rates_single = {}
+  continuous_feature_slices_single = {}
+  for feature in continuous_features:
     slices = hdr(X, Y, feature, options.get('eps', 0.05), options.get('hdr_threshold', 0.001)) 
     if len(slices) > 0:
-      continious_feature_error_rates_single[feature] = np.mean([slice_dict['error_rate'] for slice_dict in slices])
-      continious_feature_slices_single[feature] = slices
+      continuous_feature_error_rates_single[feature] = np.mean([slice_dict['error_rate'] for slice_dict in slices])
+      continuous_feature_slices_single[feature] = slices
 
   #combined top quarter
   combined_features_slices_single = categorical_features_slices_single.copy()
-  combined_features_slices_single.update(continious_feature_slices_single)
+  combined_features_slices_single.update(continuous_feature_slices_single)
   combined_features_error_rates_single = categorical_features_error_rates_single.copy()
-  combined_features_error_rates_single.update(continious_feature_error_rates_single)
+  combined_features_error_rates_single.update(continuous_feature_error_rates_single)
   N = int(0.25 * len(combined_features_error_rates_single.keys()))
   largest_feature_error_rates_single = nlargest(N, combined_features_error_rates_single, key = combined_features_error_rates_single.get)
   
