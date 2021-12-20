@@ -1,7 +1,7 @@
 import pandas as pd
 import numpy as np
-from detectors.hdr import hdr, hdr_ranges_to_slice
-from detectors.decision_tree import get_decision_tree_slices, tree_indexes_by_slices
+from tool.detectors.hdr import hdr, hdr_ranges_to_slice
+from tool.detectors.decision_tree import get_decision_tree_slices, tree_indexes_by_slices
 from heapq import nlargest
 
 

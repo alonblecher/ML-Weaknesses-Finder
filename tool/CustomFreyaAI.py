@@ -1,6 +1,9 @@
 import pandas as pd
 from xgboost import XGBClassifier
-from pipeline import initalize_data_set, apply_heuristics
+from tool.pipeline import initalize_data_set, apply_heuristics, get_all_indexes_from_all_slices
+from sklearn.model_selection import train_test_split
+from sklearn import metrics
+from tool.solutions import reweighting, ad_hoc_model, apply_synthesized_data
 
 class CustomFreyaAI:
   def __init__(self, df, target_column = 'y'):
