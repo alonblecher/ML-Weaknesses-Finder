@@ -24,7 +24,8 @@ def initalize_data_set(target_column, predicted_column, categorical_threshold = 
 
   categorical_features = {}
   for feature in X.columns:
-      categorical_features[feature] = 1.*X[feature].nunique()/X[feature].count() < categorical_threshold or X[feature].dtype == "object"
+      # Low amount of unique values in a feature (or if it's an object)
+      categorical_features[feature] = 1.*X[feature].nunique()/X.shape[0] < categorical_threshold or X[feature].dtype == "object"
 
   pp = [print(f"feature '{key}' {'is categorical' if value else 'is continuous'} ") for (key, value) in categorical_features.items()]
 
@@ -56,11 +57,13 @@ def get_all_indexes_from_all_slices(df, slices):
 
 def apply_heuristics(X, Y, df, features, options = {}):
   print('Applying heuristics...')
+  # We want to get rid of features that their values appear in over 70% of all samples - they don't contribute to slice uniqueness
   high_rate_columns = [column for column in df.columns if df[column].value_counts().max() / df.shape[0] > 0.7 ]
 
+  # updated categorical and continuous features
   categorical_features = [key for (key, value) in features.items() if (value and (key not in high_rate_columns))]
   continuous_features = [key for (key, value) in features.items() if ((value == False) and (key not in high_rate_columns))]
-  #categorical_features
+
   categorical_features_error_rates_single = {}
   categorical_features_slices_single = {}
   for feature in categorical_features:

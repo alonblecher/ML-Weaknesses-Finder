@@ -3,18 +3,6 @@ import pandas as pd
 from xgboost import XGBClassifier
 from ydata_synthetic.synthesizers import ModelParameters, TrainParameters
 from ydata_synthetic.synthesizers.regular import WGAN_GP
-from detectors.hdr import hdr, hdr_ranges_to_slice
-from detectors.decision_tree import tree_indexes_by_slices
-
-
-def reweighting(train_df, target_column, indexes, weight = 5):
-  sample_weights = np.ones(train_df.shape[0]) 
-  sample_weights[indexes] = weight
-
-  clf = XGBClassifier()
-  clf.fit(train_df.drop(columns = [target_column], axis = 0), train_df[target_column], sample_weight = sample_weights)
-
-  return clf
 
 def synthesized_data(train_samples, generator_sample_size):
 
@@ -72,14 +60,5 @@ def apply_synthesized_data(train_df, target_column, indexes, options, data = Fal
 
   clf = XGBClassifier()
   clf.fit(df_combined.drop(columns = [target_column]), df_combined[target_column])
-
-  return clf
-
-def ad_hoc_model(train_df, target_column, indexes, options):
-
-  train_samples = apply_synthesized_data(train_df, target_column, indexes, options, True)
-
-  clf = XGBClassifier()
-  clf.fit(train_samples.drop(columns = [target_column]), train_samples[target_column])
 
   return clf
