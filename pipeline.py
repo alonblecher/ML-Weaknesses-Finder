@@ -26,6 +26,8 @@ def initalize_data_set(target_column, predicted_column, categorical_threshold = 
   for feature in X.columns:
       categorical_features[feature] = 1.*X[feature].nunique()/X[feature].count() < categorical_threshold or X[feature].dtype == "object"
 
+  pp = [print(f"feature '{key}' {'is categorical' if value else 'is continuous'} ") for (key, value) in categorical_features.items()]
+
   X_encoded = pd.get_dummies(X, columns= [key for (key, value) in categorical_features.items() if value ])
 
   return X_encoded, Y, categorical_features

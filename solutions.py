@@ -20,12 +20,12 @@ def synthesized_data(train_samples, generator_sample_size):
 
   #config
   noise_dim = 32
-  dim = 128
+  dim = 256
   batch_size = 256 if 256 <= train_samples.shape[0] else train_samples.shape[0]
   
   #train config
   log_step = 20
-  epochs = 5+1
+  epochs = 50+1
   learning_rate = 5e-4
   beta_1 = 0.5
   beta_2 = 0.9

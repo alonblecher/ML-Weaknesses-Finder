@@ -52,6 +52,8 @@ class CustomFreyaAI:
     clf.fit(self.X_train, self.y_train)
     pred = clf.predict(self.X_test[self.X_test.index.isin(test_indexes)])
     before_slice_score = metrics.accuracy_score(self.y_test[self.y_test.index.isin(test_indexes)], pred)
+
+    print(f'Slice size to overall size: {train_indexes.shape[0]}/{X_train_copy.shape[0]} = {train_indexes.shape[0]/X_train_copy.shape[0]}')
     report['before_slice_score'] = before_slice_score
 
     pred = clf.predict(self.X_test)
